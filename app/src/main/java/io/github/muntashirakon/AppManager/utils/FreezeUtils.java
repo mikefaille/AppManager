@@ -22,6 +22,7 @@ import io.github.muntashirakon.AppManager.compat.PackageManagerCompat;
 import io.github.muntashirakon.AppManager.db.AppsDb;
 import io.github.muntashirakon.AppManager.db.entity.FreezeType;
 import io.github.muntashirakon.AppManager.self.SelfPermissions;
+import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.AppManager.settings.Prefs;
 
 public final class FreezeUtils {
@@ -87,7 +88,7 @@ public final class FreezeUtils {
         } else if ((freezeType == FREEZE_SUSPEND || freezeType == FREEZE_ADV_SUSPEND) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (freezeType == FREEZE_ADV_SUSPEND) {
                 // Force-stop app
-                if (SelfPermissions.checkSelfOrRemotePermission(ManifestCompat.permission.FORCE_STOP_PACKAGES)) {
+                if (Dhizuku.isPermissionGranted()) {
                     PackageManagerCompat.forceStopPackage(packageName, userId);
                 }
             }

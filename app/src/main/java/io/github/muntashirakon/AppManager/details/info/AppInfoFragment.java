@@ -2002,14 +2002,15 @@ public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRe
         checkBox.setText(R.string.remember_option_for_this_app);
         checkBox.setChecked(isCustom);
         FreezeUnfreeze.getFreezeDialog(mActivity, freezeType)
-                .setIcon(R.drawable.ic_snowflake)
-                .setTitle(R.string.freeze)
                 .setView(view)
-                .setPositiveButton(R.string.freeze, (dialog, which, selectedItem) -> {
-                    if (selectedItem == null) {
-                        return;
+                .setPositiveButton(R.string.freeze, new io.github.muntashirakon.dialog.SearchableSingleChoiceDialogBuilder.OnClickListener<Integer>() {
+                    @Override
+                    public void onClick(android.content.DialogInterface dialog, int which, Integer selectedItem) {
+                        if (selectedItem == null) {
+                            return;
+                        }
+                        ThreadUtils.postOnBackgroundThread(() -> doFreeze(selectedItem, checkBox.isChecked()));
                     }
-                    ThreadUtils.postOnBackgroundThread(() -> doFreeze(selectedItem, checkBox.isChecked()));
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
