@@ -17,10 +17,12 @@ import androidx.core.app.PendingIntentCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.rosan.dhizuku.api.Dhizuku;
+
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.annotation.RetentionPolicy;
 
 import io.github.muntashirakon.AppManager.R;
 import io.github.muntashirakon.AppManager.compat.PackageManagerCompat;
@@ -28,7 +30,6 @@ import io.github.muntashirakon.AppManager.utils.ArrayUtils;
 import io.github.muntashirakon.AppManager.utils.FreezeUtils;
 import io.github.muntashirakon.AppManager.utils.NotificationUtils;
 import io.github.muntashirakon.AppManager.utils.UIUtils;
-import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.dialog.SearchableSingleChoiceDialogBuilder;
 
 public final class FreezeUnfreeze {
@@ -124,9 +125,9 @@ public final class FreezeUnfreeze {
                     .append("\n")
                     .append(UIUtils.getSmallerText(context.getString(FREEZING_METHOD_DESCRIPTIONS[i]))));
         }
-        if (Dhizuku.isDhizukuAvailable()) {
+        if (Dhizuku.init(context)) {
             options.add(FreezeUtils.FREEZE_DHIZUKU);
-            itemDescription.add("Dhizuku");
+            itemDescription.add(FREEZE_METHOD_DHIZUKU);
         }
         return new SearchableSingleChoiceDialogBuilder<>(context, options.toArray(new Integer[0]), itemDescription.toArray(new CharSequence[0]))
                 .setSelectionIndex(ArrayUtils.indexOf(options.toArray(new Integer[0]), selectedType));

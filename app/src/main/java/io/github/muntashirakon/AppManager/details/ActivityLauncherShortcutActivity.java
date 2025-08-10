@@ -108,7 +108,7 @@ public class ActivityLauncherShortcutActivity extends BaseActivity {
                     .setCancelable(false)
                     .setPositiveButton(R.string.yes, (dialog, which) -> ThreadUtils.postOnBackgroundThread(() -> {
                         try {
-                            FreezeUtils.unfreeze(mPackageName, mUserId);
+                            FreezeUtils.unfreeze(this, mPackageName, mUserId);
                             ThreadUtils.postOnMainThread(() -> {
                                 Intent service = new Intent(FreezeUnfreeze.getShortcutIntent(this, mPackageName, mUserId, 0))
                                         .setClassName(this, FreezeUnfreezeService.class.getName());

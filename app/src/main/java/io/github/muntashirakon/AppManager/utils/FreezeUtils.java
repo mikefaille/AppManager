@@ -11,11 +11,12 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
+
+import com.rosan.dhizuku.api.Dhizuku;
+import com.rosan.dhizuku.api.DhizukuRemoteProcess;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -26,7 +27,6 @@ import io.github.muntashirakon.AppManager.compat.PackageManagerCompat;
 import io.github.muntashirakon.AppManager.db.AppsDb;
 import io.github.muntashirakon.AppManager.db.entity.FreezeType;
 import io.github.muntashirakon.AppManager.self.SelfPermissions;
-import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.AppManager.settings.Prefs;
 
 public final class FreezeUtils {
@@ -78,8 +78,8 @@ public final class FreezeUtils {
     }
 
     @Deprecated
-    public static void freeze(@NonNull String packageName, @UserIdInt int userId) throws RemoteException {
-        freeze(packageName, userId, Prefs.Blocking.getDefaultFreezingMethod());
+    public static boolean freeze(@NonNull Context context, @NonNull String packageName, @UserIdInt int userId) throws RemoteException {
+        return freeze(context, packageName, userId, Prefs.Blocking.getDefaultFreezingMethod());
     }
 
     public static boolean freeze(@NonNull Context context, @NonNull String packageName, @UserIdInt int userId, @FreezeMethod int freezeType)
@@ -98,7 +98,7 @@ public final class FreezeUtils {
         } else if (freezeType == FREEZE_HIDE) {
             if (SelfPermissions.checkSelfOrRemotePermission(ManifestCompat.permission.MANAGE_USERS)) {
                 PackageManagerCompat.hidePackage(packageName, userId, true);
-                return;
+                return true;
             }
             // No permission, fall-through
         } else if ((freezeType == FREEZE_SUSPEND || freezeType == FREEZE_ADV_SUSPEND) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -111,18 +111,19 @@ public final class FreezeUtils {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 if (SelfPermissions.checkSelfOrRemotePermission(ManifestCompat.permission.SUSPEND_APPS)) {
                     PackageManagerCompat.suspendPackages(new String[]{packageName}, userId, true);
-                    return;
+                    return true;
                 }
                 // No permission, fall-through
             } else {
                 if (SelfPermissions.checkSelfOrRemotePermission(ManifestCompat.permission.MANAGE_USERS)) {
                     PackageManagerCompat.suspendPackages(new String[]{packageName}, userId, true);
-                    return;
+                    return true;
                 }
                 // No permission, fall-through
             }
         }
         PackageManagerCompat.setApplicationEnabledSetting(packageName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER, 0, userId);
+        return true;
     }
 
     public static boolean unfreeze(@NonNull Context context, @NonNull String packageName, @UserIdInt int userId) throws RemoteException {
@@ -149,5 +150,6 @@ public final class FreezeUtils {
         if (PackageManagerCompat.isPackageHidden(packageName, userId)) {
             PackageManagerCompat.hidePackage(packageName, userId, false);
         }
+        return true;
     }
 }

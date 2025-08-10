@@ -71,6 +71,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.rosan.dhizuku.api.Dhizuku;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -171,9 +172,9 @@ import io.github.muntashirakon.dialog.ScrollableDialogBuilder;
 import io.github.muntashirakon.dialog.SearchableFlagsDialogBuilder;
 import io.github.muntashirakon.dialog.SearchableItemsDialogBuilder;
 import io.github.muntashirakon.dialog.SearchableMultiChoiceDialogBuilder;
+import io.github.muntashirakon.dialog.SearchableSingleChoiceDialogBuilder;
 import io.github.muntashirakon.io.Path;
 import io.github.muntashirakon.io.Paths;
-import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.widget.SwipeRefreshLayout;
 
 public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, MenuProvider {
@@ -1322,7 +1323,7 @@ public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 });
             }
             // Set freeze/unfreeze
-            if ((canFreeze || Dhizuku.isDhizukuAvailable()) && !isFrozen) {
+            if ((canFreeze || Dhizuku.init(requireContext())) && !isFrozen) {
                 ActionItem freezeAction = new ActionItem(R.string.freeze, R.drawable.ic_snowflake);
                 actionItems.add(freezeAction);
                 freezeAction.setOnClickListener(v -> {
@@ -2003,7 +2004,7 @@ public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRe
         checkBox.setText(R.string.remember_option_for_this_app);
         checkBox.setChecked(isCustom);
         SearchableSingleChoiceDialogBuilder<Integer> builder = FreezeUnfreeze.getFreezeDialog(mActivity, freezeType);
-        if (Dhizuku.isDhizukuAvailable()) {
+        if (Dhizuku.init(requireContext())) {
             builder.addOption(FreezeUtils.FREEZE_DHIZUKU, FreezeUnfreeze.FREEZE_METHOD_DHIZUKU);
         }
         builder.setIcon(R.drawable.ic_snowflake)
@@ -2073,7 +2074,7 @@ public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     private void displayInstallerDialog(@NonNull InstallSourceInfoCompat installSource) {
         List<CharSequence> installerInfoList = new ArrayList<>(3);
-        List<String> packageNames = new ArrayList<>(3);
+        List<String> packageNames = new ArrayList<>();
         if (installSource.getInstallingPackageLabel() != null) {
             CharSequence info = new SpannableStringBuilder(getSmallerText(getString(R.string.installer)))
                     .append("\n")

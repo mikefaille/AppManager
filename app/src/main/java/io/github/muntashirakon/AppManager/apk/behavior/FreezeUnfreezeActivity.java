@@ -8,6 +8,7 @@ import static io.github.muntashirakon.AppManager.utils.UIUtils.getBitmapFromDraw
 import static io.github.muntashirakon.AppManager.utils.UIUtils.getDimmedBitmap;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -154,7 +155,7 @@ public class FreezeUnfreezeActivity extends BaseActivity {
                     shortcutInfo.setName(applicationInfo.loadLabel(getApplication().getPackageManager()));
                     boolean isFrozen = !forceFreeze && FreezeUtils.isFrozen(applicationInfo);
                     if (isFrozen) {
-                        FreezeUtils.unfreeze(shortcutInfo.packageName, shortcutInfo.userId);
+                        FreezeUtils.unfreeze(getApplication(), shortcutInfo.packageName, shortcutInfo.userId);
                         shortcutInfo.setIcon(icon);
                     } else {
                         shortcutInfo.setIcon(getDimmedBitmap(icon));
@@ -165,7 +166,7 @@ public class FreezeUnfreezeActivity extends BaseActivity {
                         }
                         int freezeType = Optional.ofNullable(FreezeUtils.loadFreezeMethod(shortcutInfo.packageName))
                                         .orElse(Prefs.Blocking.getDefaultFreezingMethod());
-                        FreezeUtils.freeze(shortcutInfo.packageName, shortcutInfo.userId, freezeType);
+                        FreezeUtils.freeze(getApplication(), shortcutInfo.packageName, shortcutInfo.userId, freezeType);
                     }
                     mIsFrozenLiveData.postValue(new Pair<>(shortcutInfo, !isFrozen));
                 } catch (RemoteException | PackageManager.NameNotFoundException e) {
@@ -179,7 +180,7 @@ public class FreezeUnfreezeActivity extends BaseActivity {
                 try {
                     int freezeType = Optional.ofNullable(FreezeUtils.loadFreezeMethod(shortcutInfo.packageName))
                             .orElse(Prefs.Blocking.getDefaultFreezingMethod());
-                    FreezeUtils.freeze(shortcutInfo.packageName, shortcutInfo.userId, freezeType);
+                    FreezeUtils.freeze(getApplication(), shortcutInfo.packageName, shortcutInfo.userId, freezeType);
                     mIsFrozenLiveData.postValue(new Pair<>(shortcutInfo, true));
                 } catch (RemoteException e) {
                     e.printStackTrace();

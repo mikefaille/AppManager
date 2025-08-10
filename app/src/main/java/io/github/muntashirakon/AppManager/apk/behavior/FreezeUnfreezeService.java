@@ -176,7 +176,7 @@ public class FreezeUnfreezeService extends Service {
                     shortcutInfo.setName(applicationInfo.loadLabel(getApplication().getPackageManager()));
                     int freezeType = Optional.ofNullable(FreezeUtils.loadFreezeMethod(shortcutInfo.packageName))
                             .orElse(Prefs.Blocking.getDefaultFreezingMethod());
-                    FreezeUtils.freeze(shortcutInfo.packageName, shortcutInfo.userId, freezeType);
+                    FreezeUtils.freeze(this, shortcutInfo.packageName, shortcutInfo.userId, freezeType);
                     shortcutInfo.setIcon(getDimmedBitmap(icon));
                     updateShortcuts(shortcutInfo);
                 } catch (RemoteException | PackageManager.NameNotFoundException e) {
