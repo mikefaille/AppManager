@@ -19,13 +19,14 @@ import java.lang.annotation.RetentionPolicy;
 import io.github.muntashirakon.AppManager.compat.ApplicationInfoCompat;
 import io.github.muntashirakon.AppManager.compat.ManifestCompat;
 import io.github.muntashirakon.AppManager.compat.PackageManagerCompat;
+import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.AppManager.db.AppsDb;
 import io.github.muntashirakon.AppManager.db.entity.FreezeType;
 import io.github.muntashirakon.AppManager.self.SelfPermissions;
 import io.github.muntashirakon.AppManager.settings.Prefs;
 
 public final class FreezeUtils {
-    @IntDef({FREEZE_DISABLE, FREEZE_SUSPEND, FREEZE_HIDE, FREEZE_ADV_SUSPEND})
+    @IntDef({FREEZE_DISABLE, FREEZE_SUSPEND, FREEZE_HIDE, FREEZE_ADV_SUSPEND, FREEZE_DHIZUKU})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FreezeMethod {
     }
@@ -34,6 +35,7 @@ public final class FreezeUtils {
     public static final int FREEZE_SUSPEND = 1 << 1;
     public static final int FREEZE_HIDE = 1 << 2;
     public static final int FREEZE_ADV_SUSPEND = 1 << 3;
+    public static final int FREEZE_DHIZUKU = 1 << 4;
 
     @WorkerThread
     public static void storeFreezeMethod(@NonNull String packageName, @FreezeMethod int freezeType) {
@@ -78,7 +80,12 @@ public final class FreezeUtils {
 
     public static void freeze(@NonNull String packageName, @UserIdInt int userId, @FreezeMethod int freezeType)
             throws RemoteException {
-        if (freezeType == FREEZE_HIDE) {
+        if (freezeType == FREEZE_DHIZUKU) {
+            if (Dhizuku.isDhizukuAvailable()) {
+                Dhizuku.setApplicationHiddenSettingAsUser(packageName, true, userId);
+                return;
+            }
+        } else if (freezeType == FREEZE_HIDE) {
             if (SelfPermissions.checkSelfOrRemotePermission(ManifestCompat.permission.MANAGE_USERS)) {
                 PackageManagerCompat.hidePackage(packageName, userId, true);
                 return;
@@ -110,6 +117,9 @@ public final class FreezeUtils {
 
     public static void unfreeze(@NonNull String packageName, @UserIdInt int userId) throws RemoteException {
         // Ignore checking preference, unfreeze for all types
+        if (Dhizuku.isDhizukuAvailable()) {
+            Dhizuku.setApplicationHiddenSettingAsUser(packageName, false, userId);
+        }
         if (PackageManagerCompat.isPackageHidden(packageName, userId)) {
             PackageManagerCompat.hidePackage(packageName, userId, false);
         }

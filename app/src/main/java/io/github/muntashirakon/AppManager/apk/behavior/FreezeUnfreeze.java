@@ -25,6 +25,7 @@ import io.github.muntashirakon.AppManager.compat.PackageManagerCompat;
 import io.github.muntashirakon.AppManager.utils.ArrayUtils;
 import io.github.muntashirakon.AppManager.utils.FreezeUtils;
 import io.github.muntashirakon.AppManager.utils.NotificationUtils;
+import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.AppManager.utils.UIUtils;
 import io.github.muntashirakon.dialog.SearchableSingleChoiceDialogBuilder;
 
@@ -110,15 +111,21 @@ public final class FreezeUnfreeze {
     public static SearchableSingleChoiceDialogBuilder<Integer> getFreezeDialog(
             @NonNull Context context,
             @FreezeUtils.FreezeMethod int selectedType) {
-        CharSequence[] itemDescription = new CharSequence[FREEZING_METHODS.length];
+        List<Integer> options = new ArrayList<>();
+        List<CharSequence> itemDescription = new ArrayList<>();
         for (int i = 0; i < FREEZING_METHODS.length; ++i) {
-            itemDescription[i] = new SpannableStringBuilder()
+            options.add(FREEZING_METHODS[i]);
+            itemDescription.add(new SpannableStringBuilder()
                     .append(context.getString(FREEZING_METHOD_TITLES[i]))
                     .append("\n")
-                    .append(UIUtils.getSmallerText(context.getString(FREEZING_METHOD_DESCRIPTIONS[i])));
+                    .append(UIUtils.getSmallerText(context.getString(FREEZING_METHOD_DESCRIPTIONS[i]))));
         }
-        return new SearchableSingleChoiceDialogBuilder<>(context, FREEZING_METHODS, itemDescription)
-                .setSelectionIndex(ArrayUtils.indexOf(FREEZING_METHODS, selectedType));
+        if (Dhizuku.isDhizukuAvailable()) {
+            options.add(FreezeUtils.FREEZE_DHIZUKU);
+            itemDescription.add("Dhizuku");
+        }
+        return new SearchableSingleChoiceDialogBuilder<>(context, options.toArray(new Integer[0]), itemDescription.toArray(new CharSequence[0]))
+                .setSelectionIndex(ArrayUtils.indexOf(options.toArray(new Integer[0]), selectedType));
     }
 
     static void launchApp(@NonNull FragmentActivity activity, @NonNull FreezeUnfreezeShortcutInfo shortcutInfo) {

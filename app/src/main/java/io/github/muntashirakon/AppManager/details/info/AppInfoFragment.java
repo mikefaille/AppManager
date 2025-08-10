@@ -157,6 +157,7 @@ import io.github.muntashirakon.AppManager.utils.ContextUtils;
 import io.github.muntashirakon.AppManager.utils.DateUtils;
 import io.github.muntashirakon.AppManager.utils.DigestUtils;
 import io.github.muntashirakon.AppManager.utils.ExUtils;
+import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.AppManager.utils.FreezeUtils;
 import io.github.muntashirakon.AppManager.utils.IntentUtils;
 import io.github.muntashirakon.AppManager.utils.KeyStoreUtils;
@@ -1321,7 +1322,7 @@ public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 });
             }
             // Set freeze/unfreeze
-            if (canFreeze && !isFrozen) {
+            if ((canFreeze || Dhizuku.isDhizukuAvailable()) && !isFrozen) {
                 ActionItem freezeAction = new ActionItem(R.string.freeze, R.drawable.ic_snowflake);
                 actionItems.add(freezeAction);
                 freezeAction.setOnClickListener(v -> {
@@ -2001,8 +2002,11 @@ public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRe
         MaterialCheckBox checkBox = view.findViewById(R.id.checkbox);
         checkBox.setText(R.string.remember_option_for_this_app);
         checkBox.setChecked(isCustom);
-        FreezeUnfreeze.getFreezeDialog(mActivity, freezeType)
-                .setIcon(R.drawable.ic_snowflake)
+        SearchableSingleChoiceDialogBuilder<Integer> builder = FreezeUnfreeze.getFreezeDialog(mActivity, freezeType);
+        if (Dhizuku.isDhizukuAvailable()) {
+            builder.addOption(FreezeUtils.FREEZE_DHIZUKU, "Dhizuku");
+        }
+        builder.setIcon(R.drawable.ic_snowflake)
                 .setTitle(R.string.freeze)
                 .setView(view)
                 .setPositiveButton(R.string.freeze, (dialog, which, selectedItem) -> {

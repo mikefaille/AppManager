@@ -83,6 +83,8 @@ import io.github.muntashirakon.AppManager.utils.UIUtils;
 import io.github.muntashirakon.dialog.AlertDialogBuilder;
 import io.github.muntashirakon.dialog.ScrollableDialogBuilder;
 import io.github.muntashirakon.dialog.SearchableFlagsDialogBuilder;
+import com.rosan.dhizuku.api.Dhizuku;
+import com.rosan.dhizuku.api.Dhizuku.PermissionCallback;
 import io.github.muntashirakon.dialog.SearchableSingleChoiceDialogBuilder;
 import io.github.muntashirakon.io.Paths;
 import io.github.muntashirakon.multiselection.MultiSelectionActionsView;
@@ -270,6 +272,15 @@ public class MainActivity extends BaseActivity implements AdvancedSearchView.OnQ
             if (mAdapter != null) mAdapter.setDefaultList(applicationItems);
             showProgressIndicator(false);
         });
+        if (Dhizuku.isDhizukuAvailable()) {
+            Dhizuku.requestPermission(new PermissionCallback() {
+                @Override
+                public void onGranted() {
+                    // Enable elevated features, e.g., app freezing
+                    Log.d("AppManager", "Dhizuku granted - enabling support");
+                }
+            });
+        }
         viewModel.getOperationStatus().observe(this, status -> {
             mProgressIndicator.hide();
             if (status) {
