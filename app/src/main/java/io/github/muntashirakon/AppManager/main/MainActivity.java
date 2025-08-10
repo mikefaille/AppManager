@@ -88,9 +88,11 @@ import io.github.muntashirakon.io.Paths;
 import io.github.muntashirakon.multiselection.MultiSelectionActionsView;
 import io.github.muntashirakon.util.UiUtils;
 import io.github.muntashirakon.widget.MultiSelectionView;
+import io.github.muntashirakon.widget.SwipeRefreshLayout;
+import android.content.pm.PackageManager;
+import android.util.Log;
 import com.rosan.dhizuku.api.Dhizuku;
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
-import io.github.muntashirakon.widget.SwipeRefreshLayout;
 
 public class MainActivity extends BaseActivity implements AdvancedSearchView.OnQueryTextListener,
         SwipeRefreshLayout.OnRefreshListener, MultiSelectionActionsView.OnItemSelectedListener,
@@ -272,17 +274,27 @@ public class MainActivity extends BaseActivity implements AdvancedSearchView.OnQ
             if (mAdapter != null) mAdapter.setDefaultList(applicationItems);
             showProgressIndicator(false);
         });
-        if (Dhizuku.isDhizukuAvailable()) {
-            if (Dhizuku.isPermissionGranted()) return;
-            Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
-                @Override
-                public void onRequestPermission(int grantResult) {
-                    if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                        // Enable elevated features, e.g., app freezing
-                        Log.d("AppManager", "Dhizuku granted - enabling support");
-                    }
+        if (Dhizuku.init(this)) {
+            if (Dhizuku.isPermissionGranted()) {
+                Log.d("AppManager", "Dhizuku permission already granted.");
+            } else {
+                try {
+                    Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
+                        @Override
+                        public void onRequestPermission(int grantResult) {
+                            if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                                Log.d("AppManager", "Dhizuku permission granted.");
+                            } else {
+                                Log.d("AppManager", "Dhizuku permission denied.");
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    Log.e("AppManager", "Failed to request Dhizuku permission", e);
                 }
-            });
+            }
+        } else {
+            Log.d("AppManager", "Dhizuku not available.");
         }
         viewModel.getOperationStatus().observe(this, status -> {
             mProgressIndicator.hide();

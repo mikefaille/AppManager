@@ -18,6 +18,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import java.lang.annotation.Retention;
+import java.util.ArrayList;
+import java.util.List;
 import java.lang.annotation.RetentionPolicy;
 
 import io.github.muntashirakon.AppManager.R;
@@ -30,6 +32,8 @@ import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.dialog.SearchableSingleChoiceDialogBuilder;
 
 public final class FreezeUnfreeze {
+    public static final String FREEZE_METHOD_DHIZUKU = "Dhizuku";
+
     @IntDef(flag = true, value = {
             FLAG_ON_UNFREEZE_OPEN_APP,
             FLAG_ON_OPEN_APP_NO_TASK,

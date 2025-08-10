@@ -2004,7 +2004,7 @@ public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRe
         checkBox.setChecked(isCustom);
         SearchableSingleChoiceDialogBuilder<Integer> builder = FreezeUnfreeze.getFreezeDialog(mActivity, freezeType);
         if (Dhizuku.isDhizukuAvailable()) {
-            builder.addOption(FreezeUtils.FREEZE_DHIZUKU, "Dhizuku");
+            builder.addOption(FreezeUtils.FREEZE_DHIZUKU, FreezeUnfreeze.FREEZE_METHOD_DHIZUKU);
         }
         builder.setIcon(R.drawable.ic_snowflake)
                 .setTitle(R.string.freeze)
@@ -2027,7 +2027,9 @@ public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRe
             } else {
                 FreezeUtils.deleteFreezeMethod(mPackageName);
             }
-            FreezeUtils.freeze(mPackageName, mUserId, freezeType);
+            if (!FreezeUtils.freeze(requireContext(), mPackageName, mUserId, freezeType)) {
+                ThreadUtils.postOnMainThread(() -> displayLongToast(R.string.failed_to_freeze, mAppLabel));
+            }
         } catch (Throwable th) {
             Log.e(TAG, th);
             ThreadUtils.postOnMainThread(() -> displayLongToast(R.string.failed_to_freeze, mAppLabel));
@@ -2037,7 +2039,9 @@ public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRe
     @WorkerThread
     private void doUnfreeze() {
         try {
-            FreezeUtils.unfreeze(mPackageName, mUserId);
+            if (!FreezeUtils.unfreeze(requireContext(), mPackageName, mUserId)) {
+                ThreadUtils.postOnMainThread(() -> displayLongToast(R.string.failed_to_unfreeze, mAppLabel));
+            }
         } catch (Throwable th) {
             Log.e(TAG, th);
             ThreadUtils.postOnMainThread(() -> displayLongToast(R.string.failed_to_unfreeze, mAppLabel));

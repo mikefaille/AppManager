@@ -593,7 +593,10 @@ public class BatchOpsManager {
                         .orElse(options.getType());
             } else type = options.getType();
             try {
-                FreezeUtils.freeze(pair.getPackageName(), pair.getUserId(), type);
+                if (!FreezeUtils.freeze(ContextUtils.getContext(), pair.getPackageName(), pair.getUserId(), type)) {
+                    log("====> op=ADVANCED_FREEZE, pkg=" + pair + ", type = " + type);
+                    failedPackages.add(pair);
+                }
             } catch (Throwable e) {
                 log("====> op=ADVANCED_FREEZE, pkg=" + pair + ", type = " + type, e);
                 failedPackages.add(pair);
@@ -613,9 +616,15 @@ public class BatchOpsManager {
             pair = info.getPair(i);
             try {
                 if (freeze) {
-                    FreezeUtils.freeze(pair.getPackageName(), pair.getUserId());
+                    if (!FreezeUtils.freeze(ContextUtils.getContext(), pair.getPackageName(), pair.getUserId())) {
+                        log("====> op=APP_FREEZE, pkg=" + pair + ", freeze = true");
+                        failedPackages.add(pair);
+                    }
                 } else {
-                    FreezeUtils.unfreeze(pair.getPackageName(), pair.getUserId());
+                    if (!FreezeUtils.unfreeze(ContextUtils.getContext(), pair.getPackageName(), pair.getUserId())) {
+                        log("====> op=APP_FREEZE, pkg=" + pair + ", freeze = false");
+                        failedPackages.add(pair);
+                    }
                 }
             } catch (Throwable e) {
                 log("====> op=APP_FREEZE, pkg=" + pair + ", freeze = " + freeze, e);

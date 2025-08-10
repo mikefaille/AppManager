@@ -10,6 +10,8 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -79,13 +81,19 @@ public final class FreezeUtils {
         freeze(packageName, userId, Prefs.Blocking.getDefaultFreezingMethod());
     }
 
-    public static void freeze(@NonNull String packageName, @UserIdInt int userId, @FreezeMethod int freezeType)
+    public static boolean freeze(@NonNull Context context, @NonNull String packageName, @UserIdInt int userId, @FreezeMethod int freezeType)
             throws RemoteException {
         if (freezeType == FREEZE_DHIZUKU) {
-            if (Dhizuku.isDhizukuAvailable()) {
-                Dhizuku.setApplicationHiddenSettingAsUser(packageName, true, userId);
-                return;
+            if (Dhizuku.init(context)) {
+                try {
+                    DhizukuRemoteProcess process = Dhizuku.newProcess(new String[]{"pm", "disable", "user", "--user", String.valueOf(userId), packageName}, null, null);
+                    return process.waitFor() == 0;
+                } catch (Exception e) {
+                    Log.e("AppManager", "Failed to freeze with Dhizuku", e);
+                    return false;
+                }
             }
+            return false;
         } else if (freezeType == FREEZE_HIDE) {
             if (SelfPermissions.checkSelfOrRemotePermission(ManifestCompat.permission.MANAGE_USERS)) {
                 PackageManagerCompat.hidePackage(packageName, userId, true);
@@ -116,26 +124,29 @@ public final class FreezeUtils {
         PackageManagerCompat.setApplicationEnabledSetting(packageName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER, 0, userId);
     }
 
-    public static void unfreeze(@NonNull String packageName, @UserIdInt int userId) throws RemoteException {
+    public static boolean unfreeze(@NonNull Context context, @NonNull String packageName, @UserIdInt int userId) throws RemoteException {
         Integer freezeType = loadFreezeMethod(packageName);
         if (freezeType != null && freezeType == FREEZE_DHIZUKU) {
-            if (Dhizuku.isDhizukuAvailable()) {
+            if (Dhizuku.init(context)) {
                 try {
-                    Dhizuku.setApplicationHiddenSettingAsUser(packageName, false, userId);
-                } catch (RemoteException e) {
+                    DhizukuRemoteProcess process = Dhizuku.newProcess(new String[]{"pm", "enable", packageName}, null, null);
+                    return process.waitFor() == 0;
+                } catch (Exception e) {
                     Log.e("AppManager", "Failed to unfreeze with Dhizuku", e);
+                    return false;
                 }
             }
+            return false;
         }
-        // Ignore checking preference, unfreeze for all types
-        if (PackageManagerCompat.isPackageHidden(packageName, userId)) {
-            PackageManagerCompat.hidePackage(packageName, userId, false);
+        // Unfreeze using other methods as a fallback
+        if (PackageManagerCompat.getApplicationEnabledSetting(packageName, userId) != PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+            PackageManagerCompat.setApplicationEnabledSetting(packageName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0, userId);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && PackageManagerCompat.isPackageSuspended(packageName, userId)) {
             PackageManagerCompat.suspendPackages(new String[]{packageName}, userId, false);
         }
-        if (PackageManagerCompat.getApplicationEnabledSetting(packageName, userId) != PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
-            PackageManagerCompat.setApplicationEnabledSetting(packageName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0, userId);
+        if (PackageManagerCompat.isPackageHidden(packageName, userId)) {
+            PackageManagerCompat.hidePackage(packageName, userId, false);
         }
     }
 }
