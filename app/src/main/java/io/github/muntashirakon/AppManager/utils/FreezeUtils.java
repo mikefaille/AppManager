@@ -85,7 +85,7 @@ public final class FreezeUtils {
     public static boolean freeze(@NonNull Context context, @NonNull String packageName, @UserIdInt int userId, @FreezeMethod int freezeType)
             throws RemoteException {
         if (freezeType == FREEZE_DHIZUKU) {
-            if (Dhizuku.init(context)) {
+            if (Dhizuku.isDhizukuAvailable()) {
                 try {
                     DhizukuRemoteProcess process = Dhizuku.newProcess(new String[]{"pm", "disable", "user", "--user", String.valueOf(userId), packageName}, null, null);
                     return process.waitFor() == 0;
@@ -129,7 +129,7 @@ public final class FreezeUtils {
     public static boolean unfreeze(@NonNull Context context, @NonNull String packageName, @UserIdInt int userId) throws RemoteException {
         Integer freezeType = loadFreezeMethod(packageName);
         if (freezeType != null && freezeType == FREEZE_DHIZUKU) {
-            if (Dhizuku.init(context)) {
+            if (Dhizuku.isDhizukuAvailable()) {
                 try {
                     DhizukuRemoteProcess process = Dhizuku.newProcess(new String[]{"pm", "enable", packageName}, null, null);
                     return process.waitFor() == 0;

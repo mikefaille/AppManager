@@ -1323,7 +1323,7 @@ public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 });
             }
             // Set freeze/unfreeze
-            if ((canFreeze || Dhizuku.init(requireContext())) && !isFrozen) {
+            if ((canFreeze || Dhizuku.isDhizukuAvailable()) && !isFrozen) {
                 ActionItem freezeAction = new ActionItem(R.string.freeze, R.drawable.ic_snowflake);
                 actionItems.add(freezeAction);
                 freezeAction.setOnClickListener(v -> {
@@ -2004,7 +2004,7 @@ public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRe
         checkBox.setText(R.string.remember_option_for_this_app);
         checkBox.setChecked(isCustom);
         SearchableSingleChoiceDialogBuilder<Integer> builder = FreezeUnfreeze.getFreezeDialog(mActivity, freezeType);
-        if (Dhizuku.init(requireContext())) {
+        if (Dhizuku.isDhizukuAvailable()) {
             builder.addOption(FreezeUtils.FREEZE_DHIZUKU, FreezeUnfreeze.FREEZE_METHOD_DHIZUKU);
         }
         builder.setIcon(R.drawable.ic_snowflake)
