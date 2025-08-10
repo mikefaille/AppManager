@@ -172,6 +172,7 @@ import io.github.muntashirakon.dialog.SearchableFlagsDialogBuilder;
 import io.github.muntashirakon.dialog.SearchableItemsDialogBuilder;
 import io.github.muntashirakon.dialog.SearchableMultiChoiceDialogBuilder;
 import io.github.muntashirakon.io.Path;
+import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.io.Paths;
 import io.github.muntashirakon.widget.SwipeRefreshLayout;
 
@@ -1321,7 +1322,7 @@ public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 });
             }
             // Set freeze/unfreeze
-            if (canFreeze && !isFrozen) {
+            if ((canFreeze || Dhizuku.isPermissionGranted()) && !isFrozen) {
                 ActionItem freezeAction = new ActionItem(R.string.freeze, R.drawable.ic_snowflake);
                 actionItems.add(freezeAction);
                 freezeAction.setOnClickListener(v -> {
