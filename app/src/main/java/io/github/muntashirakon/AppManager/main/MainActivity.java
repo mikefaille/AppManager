@@ -83,13 +83,13 @@ import io.github.muntashirakon.AppManager.utils.UIUtils;
 import io.github.muntashirakon.dialog.AlertDialogBuilder;
 import io.github.muntashirakon.dialog.ScrollableDialogBuilder;
 import io.github.muntashirakon.dialog.SearchableFlagsDialogBuilder;
-import com.rosan.dhizuku.api.Dhizuku;
-import com.rosan.dhizuku.api.Dhizuku.PermissionCallback;
 import io.github.muntashirakon.dialog.SearchableSingleChoiceDialogBuilder;
 import io.github.muntashirakon.io.Paths;
 import io.github.muntashirakon.multiselection.MultiSelectionActionsView;
 import io.github.muntashirakon.util.UiUtils;
 import io.github.muntashirakon.widget.MultiSelectionView;
+import com.rosan.dhizuku.api.Dhizuku;
+import com.rosan.dhizuku.api.DhizukuRequestPermissionListener;
 import io.github.muntashirakon.widget.SwipeRefreshLayout;
 
 public class MainActivity extends BaseActivity implements AdvancedSearchView.OnQueryTextListener,
@@ -273,11 +273,14 @@ public class MainActivity extends BaseActivity implements AdvancedSearchView.OnQ
             showProgressIndicator(false);
         });
         if (Dhizuku.isDhizukuAvailable()) {
-            Dhizuku.requestPermission(new PermissionCallback() {
+            if (Dhizuku.isPermissionGranted()) return;
+            Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
                 @Override
-                public void onGranted() {
-                    // Enable elevated features, e.g., app freezing
-                    Log.d("AppManager", "Dhizuku granted - enabling support");
+                public void onRequestPermission(int grantResult) {
+                    if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                        // Enable elevated features, e.g., app freezing
+                        Log.d("AppManager", "Dhizuku granted - enabling support");
+                    }
                 }
             });
         }

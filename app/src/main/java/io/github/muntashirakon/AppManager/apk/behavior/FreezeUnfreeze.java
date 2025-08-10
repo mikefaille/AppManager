@@ -25,8 +25,8 @@ import io.github.muntashirakon.AppManager.compat.PackageManagerCompat;
 import io.github.muntashirakon.AppManager.utils.ArrayUtils;
 import io.github.muntashirakon.AppManager.utils.FreezeUtils;
 import io.github.muntashirakon.AppManager.utils.NotificationUtils;
-import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.AppManager.utils.UIUtils;
+import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.dialog.SearchableSingleChoiceDialogBuilder;
 
 public final class FreezeUnfreeze {

@@ -7,6 +7,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.RemoteException;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -19,10 +20,10 @@ import java.lang.annotation.RetentionPolicy;
 import io.github.muntashirakon.AppManager.compat.ApplicationInfoCompat;
 import io.github.muntashirakon.AppManager.compat.ManifestCompat;
 import io.github.muntashirakon.AppManager.compat.PackageManagerCompat;
-import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.AppManager.db.AppsDb;
 import io.github.muntashirakon.AppManager.db.entity.FreezeType;
 import io.github.muntashirakon.AppManager.self.SelfPermissions;
+import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.AppManager.settings.Prefs;
 
 public final class FreezeUtils {
@@ -116,10 +117,17 @@ public final class FreezeUtils {
     }
 
     public static void unfreeze(@NonNull String packageName, @UserIdInt int userId) throws RemoteException {
-        // Ignore checking preference, unfreeze for all types
-        if (Dhizuku.isDhizukuAvailable()) {
-            Dhizuku.setApplicationHiddenSettingAsUser(packageName, false, userId);
+        Integer freezeType = loadFreezeMethod(packageName);
+        if (freezeType != null && freezeType == FREEZE_DHIZUKU) {
+            if (Dhizuku.isDhizukuAvailable()) {
+                try {
+                    Dhizuku.setApplicationHiddenSettingAsUser(packageName, false, userId);
+                } catch (RemoteException e) {
+                    Log.e("AppManager", "Failed to unfreeze with Dhizuku", e);
+                }
+            }
         }
+        // Ignore checking preference, unfreeze for all types
         if (PackageManagerCompat.isPackageHidden(packageName, userId)) {
             PackageManagerCompat.hidePackage(packageName, userId, false);
         }

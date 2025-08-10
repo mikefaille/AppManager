@@ -157,7 +157,6 @@ import io.github.muntashirakon.AppManager.utils.ContextUtils;
 import io.github.muntashirakon.AppManager.utils.DateUtils;
 import io.github.muntashirakon.AppManager.utils.DigestUtils;
 import io.github.muntashirakon.AppManager.utils.ExUtils;
-import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.AppManager.utils.FreezeUtils;
 import io.github.muntashirakon.AppManager.utils.IntentUtils;
 import io.github.muntashirakon.AppManager.utils.KeyStoreUtils;
@@ -174,6 +173,7 @@ import io.github.muntashirakon.dialog.SearchableItemsDialogBuilder;
 import io.github.muntashirakon.dialog.SearchableMultiChoiceDialogBuilder;
 import io.github.muntashirakon.io.Path;
 import io.github.muntashirakon.io.Paths;
+import com.rosan.dhizuku.api.Dhizuku;
 import io.github.muntashirakon.widget.SwipeRefreshLayout;
 
 public class AppInfoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, MenuProvider {
